@@ -15,6 +15,9 @@
 		"type": "git",
 		"url": "https://github.com/atahanyorganci/sitemap.git"
 	},
+	"files": [
+		"dist"
+	],
 	"type": "module",
 	"sideEffects": false,
 	"exports": {
