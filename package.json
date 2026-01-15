@@ -1,23 +1,45 @@
 {
-  "name": "@yorganci/sitemap",
-  "type": "module",
-  "version": "0.0.0",
-  "packageManager": "pnpm@10.0.0+sha512.b8fef5494bd3fe4cbd4edabd0745df2ee5be3e4b0b8b08fa643aa3e4c6702ccc0f00d68fa8a8c9858a735a0032485a44990ed2810526c875e416f001b17df12b",
-  "description": "Modern sitemap generator",
-  "author": {
-    "name": "Atahan Yorgancı",
-    "email": "atahanyorganci@hotmail.com"
-  },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/atahanyorganci/sitemap.git"
-  },
-  "homepage": "https://github.com/atahanyorganci/sitemap",
-  "bugs": {
-    "url": "https://github.com/atahanyorganci/sitemap/issues"
-  },
-  "scripts": {},
-  "dependencies": {},
-  "devDependencies": {}
+	"name": "@yorganci/sitemap",
+	"version": "0.0.0",
+	"description": "Modern sitemap generator",
+	"homepage": "https://github.com/atahanyorganci/sitemap",
+	"bugs": {
+		"url": "https://github.com/atahanyorganci/sitemap/issues"
+	},
+	"license": "MIT",
+	"author": {
+		"name": "Atahan Yorgancı",
+		"email": "atahanyorganci@hotmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/atahanyorganci/sitemap.git"
+	},
+	"type": "module",
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"types": "./dist/index.d.mts",
+			"import": "./dist/index.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"scripts": {
+		"build": "tsdown --dts",
+		"build:watch": "tsdown --dts --watch",
+		"check": "tsc",
+		"check:watch": "tsc --watch",
+		"format": "oxfmt --check .",
+		"format:write": "oxfmt --write .",
+		"lint": "oxlint --type-aware --type-check .",
+		"lint:write": "oxlint --type-aware --type-check --fix ."
+	},
+	"devDependencies": {
+		"oxfmt": "^0.24.0",
+		"oxlint": "^1.39.0",
+		"oxlint-tsgolint": "^0.11.0",
+		"tsdown": "0.20.0-beta.3",
+		"typescript": "^5.9.3"
+	},
+	"packageManager": "pnpm@10.0.0+sha512.b8fef5494bd3fe4cbd4edabd0745df2ee5be3e4b0b8b08fa643aa3e4c6702ccc0f00d68fa8a8c9858a735a0032485a44990ed2810526c875e416f001b17df12b"
 }
