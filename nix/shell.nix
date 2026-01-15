@@ -14,7 +14,7 @@
         '';
         buildInputs = with pkgs; [
           pnpm-shim
-          nodejs-slim
+          nodejs
         ];
       };
     };
