@@ -13,7 +13,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/atahanyorganci/sitemap.git"
+		"url": "git+https://github.com/atahanyorganci/sitemap.git"
 	},
 	"files": [
 		"dist"
@@ -35,9 +35,12 @@
 		"format": "oxfmt --check .",
 		"format:write": "oxfmt --write .",
 		"lint": "oxlint --type-aware --type-check .",
-		"lint:write": "oxlint --type-aware --type-check --fix ."
+		"lint:write": "oxlint --type-aware --type-check --fix .",
+		"publish:jsr": "jsr publish",
+		"publish:npm": "npm publish --provenance --access public"
 	},
 	"devDependencies": {
+		"jsr": "^0.13.5",
 		"oxfmt": "^0.24.0",
 		"oxlint": "^1.39.0",
 		"oxlint-tsgolint": "^0.11.0",
