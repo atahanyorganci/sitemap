@@ -1,0 +1,50 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateSitemap > Sitemaps Protocol examples > generates URL with only required loc field 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url loc="http://www.example.com/page"/>
+</urlset>"
+`;
+
+exports[`generateSitemap > Sitemaps Protocol examples > generates basic single URL with all fields 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url loc="http://www.example.com/" lastmod="2005-01-01" changefreq="monthly" priority="0.8"/>
+</urlset>"
+`;
+
+exports[`generateSitemap > Sitemaps Protocol examples > generates multiple URLs with various optional fields 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url loc="http://www.example.com/" lastmod="2005-01-01" changefreq="monthly" priority="0.8"/>
+  <url loc="http://www.example.com/catalog?item=12&amp;desc=vacation_hawaii" changefreq="weekly"/>
+  <url loc="http://www.example.com/catalog?item=73&amp;desc=vacation_new_zealand" lastmod="2004-12-23" changefreq="weekly"/>
+  <url loc="http://www.example.com/catalog?item=74&amp;desc=vacation_newfoundland" lastmod="2004-12-23" priority="0.3"/>
+  <url loc="http://www.example.com/catalog?item=83&amp;desc=vacation_usa" lastmod="2004-11-23"/>
+</urlset>"
+`;
+
+exports[`generateSitemap > Sitemaps Protocol examples > generates sitemap with all changefreq values 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url loc="http://www.example.com/always" changefreq="always"/>
+  <url loc="http://www.example.com/hourly" changefreq="hourly"/>
+  <url loc="http://www.example.com/daily" changefreq="daily"/>
+  <url loc="http://www.example.com/weekly" changefreq="weekly"/>
+  <url loc="http://www.example.com/monthly" changefreq="monthly"/>
+  <url loc="http://www.example.com/yearly" changefreq="yearly"/>
+  <url loc="http://www.example.com/never" changefreq="never"/>
+</urlset>"
+`;
+
+exports[`generateSitemap > Sitemaps Protocol examples > generates sitemap with priority boundary values 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url loc="http://www.example.com/low" priority="0"/>
+  <url loc="http://www.example.com/default" priority="0.5"/>
+  <url loc="http://www.example.com/high" priority="1"/>
+</urlset>"
+`;
+
+exports[`generateSitemap > Sitemaps Protocol examples > generates sitemap without pretty print 1`] = `"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url loc="http://www.example.com/" lastmod="2005-01-01" changefreq="monthly" priority="0.8"/></urlset>"`;
