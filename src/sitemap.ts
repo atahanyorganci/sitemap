@@ -392,61 +392,68 @@ function generateNewsElement(builder: XMLBuilder, news: SitemapNews): void {
 	newsElement.ele("news:title").txt(news.title);
 }
 
+function generateUrlElement(
+	builder: XMLBuilder,
+	{ loc, lastmod, changefreq, priority, images, videos, news, alternates }: SitemapUrl,
+): void {
+	if (loc.length > 2048) {
+		throw new Error("URL length must be less than 2048 characters");
+	}
+	if (lastmod !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(lastmod)) {
+		throw new Error("Last modified date must be in YYYY-MM-DD format");
+	}
+	if (changefreq !== undefined && !CHANGE_FREQUENCY.includes(changefreq)) {
+		throw new Error("Invalid change frequency");
+	}
+	if (priority !== undefined && (priority < 0 || priority > 1)) {
+		throw new Error("Priority must be between 0 and 1");
+	}
+	const urlElement = builder.ele("url");
+	urlElement.ele("loc").txt(loc);
+	if (lastmod !== undefined) {
+		urlElement.ele("lastmod").txt(lastmod);
+	}
+	if (changefreq !== undefined) {
+		urlElement.ele("changefreq").txt(changefreq);
+	}
+	if (priority !== undefined) {
+		urlElement.ele("priority").txt(priority.toString());
+	}
+	if (images && images.length > 0) {
+		if (images.length > 1000) {
+			throw new Error("Maximum 1000 images per URL");
+		}
+		for (const image of images) {
+			generateImageElement(urlElement, image);
+		}
+	}
+	if (videos && videos.length > 0) {
+		for (const video of videos) {
+			generateVideoElement(urlElement, video);
+		}
+	}
+	if (news) {
+		generateNewsElement(urlElement, news);
+	}
+	if (alternates && alternates.length > 0) {
+		for (const alternate of alternates) {
+			urlElement.ele("xhtml:link", {
+				rel: "alternate",
+				hreflang: alternate.hreflang,
+				href: alternate.href,
+			});
+		}
+	}
+	urlElement.end();
+}
+
 export function generateSitemap(urls: SitemapUrl[], { prettyPrint = true }: { prettyPrint?: boolean } = {}): string {
 	if (urls.length === 0) {
 		throw new Error("No URLs provided");
 	}
 	const xml = create({ version: "1.0", encoding: "UTF-8" }).ele("urlset", getNamespaces(urls));
-	for (const { loc, lastmod, changefreq, priority, images, videos, news, alternates } of urls) {
-		if (loc.length > 2048) {
-			throw new Error("URL length must be less than 2048 characters");
-		}
-		if (lastmod !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(lastmod)) {
-			throw new Error("Last modified date must be in YYYY-MM-DD format");
-		}
-		if (changefreq !== undefined && !CHANGE_FREQUENCY.includes(changefreq)) {
-			throw new Error("Invalid change frequency");
-		}
-		if (priority !== undefined && (priority < 0 || priority > 1)) {
-			throw new Error("Priority must be between 0 and 1");
-		}
-		const urlElement = xml.ele("url");
-		urlElement.ele("loc").txt(loc);
-		if (lastmod !== undefined) {
-			urlElement.ele("lastmod").txt(lastmod);
-		}
-		if (changefreq !== undefined) {
-			urlElement.ele("changefreq").txt(changefreq);
-		}
-		if (priority !== undefined) {
-			urlElement.ele("priority").txt(priority.toString());
-		}
-		if (images && images.length > 0) {
-			if (images.length > 1000) {
-				throw new Error("Maximum 1000 images per URL");
-			}
-			for (const image of images) {
-				generateImageElement(urlElement, image);
-			}
-		}
-		if (videos && videos.length > 0) {
-			for (const video of videos) {
-				generateVideoElement(urlElement, video);
-			}
-		}
-		if (news) {
-			generateNewsElement(urlElement, news);
-		}
-		if (alternates && alternates.length > 0) {
-			for (const alternate of alternates) {
-				urlElement.ele("xhtml:link", {
-					rel: "alternate",
-					hreflang: alternate.hreflang,
-					href: alternate.href,
-				});
-			}
-		}
-		urlElement.end();
+	for (const url of urls) {
+		generateUrlElement(xml, url);
 	}
 	return xml.end({ prettyPrint });
 }
