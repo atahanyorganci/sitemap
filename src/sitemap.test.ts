@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateSitemap, generateSitemapIndex, generateSitemapCollection } from "./sitemap.js";
+import { generateSitemap, generateSitemapIndex, generateSitemapCollection, type SitemapUrl } from "./sitemap.js";
 
 describe("generateSitemap", () => {
 	describe("validation", () => {
@@ -412,6 +412,402 @@ describe("generateSitemapCollection", () => {
 					maxUrlsPerSitemap: 50000,
 				}),
 			).not.toThrow();
+		});
+	});
+});
+
+describe("sitemap extensions", () => {
+	describe("image sitemap", () => {
+		it("generates sitemap with single image", () => {
+			const sitemap = generateSitemap([
+				{
+					loc: "http://www.example.com/page",
+					images: [{ loc: "http://www.example.com/image.jpg" }],
+				},
+			]);
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("generates sitemap with image including all fields", () => {
+			const sitemap = generateSitemap([
+				{
+					loc: "http://www.example.com/page",
+					images: [
+						{
+							loc: "http://www.example.com/photo.jpg",
+							caption: "A beautiful sunset over the mountains",
+							geoLocation: "Limerick, Ireland",
+							title: "Sunset Photo",
+							license: "http://www.example.com/license",
+						},
+					],
+				},
+			]);
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("generates sitemap with multiple images", () => {
+			const sitemap = generateSitemap([
+				{
+					loc: "http://www.example.com/gallery",
+					images: [
+						{ loc: "http://www.example.com/image1.jpg", title: "Image 1" },
+						{ loc: "http://www.example.com/image2.jpg", title: "Image 2" },
+						{ loc: "http://www.example.com/image3.jpg", title: "Image 3" },
+					],
+				},
+			]);
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("throws error when more than 1000 images per URL", () => {
+			const images = Array.from({ length: 1001 }, (_, i) => ({
+				loc: `http://www.example.com/image${i}.jpg`,
+			}));
+			expect(() => generateSitemap([{ loc: "http://www.example.com/page", images }])).toThrow(
+				"Maximum 1000 images per URL",
+			);
+		});
+
+		it("includes image namespace only when images are present", () => {
+			const sitemapWithImages = generateSitemap([
+				{ loc: "http://www.example.com/page", images: [{ loc: "http://www.example.com/img.jpg" }] },
+			]);
+			const sitemapWithoutImages = generateSitemap([{ loc: "http://www.example.com/page" }]);
+
+			expect(sitemapWithImages).toContain('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"');
+			expect(sitemapWithoutImages).not.toContain("xmlns:image");
+		});
+	});
+
+	describe("video sitemap", () => {
+		it("generates sitemap with video using contentLoc", () => {
+			const sitemap = generateSitemap([
+				{
+					loc: "http://www.example.com/videos/video1",
+					videos: [
+						{
+							thumbnailLoc: "http://www.example.com/thumbs/video1.jpg",
+							title: "Grilling steaks for summer",
+							description: "A tutorial on how to grill steaks perfectly",
+							contentLoc: "http://www.example.com/videos/video1.mp4",
+						},
+					],
+				},
+			]);
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("generates sitemap with video using playerLoc", () => {
+			const sitemap = generateSitemap([
+				{
+					loc: "http://www.example.com/videos/video1",
+					videos: [
+						{
+							thumbnailLoc: "http://www.example.com/thumbs/video1.jpg",
+							title: "Grilling steaks for summer",
+							description: "A tutorial on how to grill steaks perfectly",
+							playerLoc: "http://www.example.com/player?video=video1",
+						},
+					],
+				},
+			]);
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("generates sitemap with video including all optional fields", () => {
+			const sitemap = generateSitemap([
+				{
+					loc: "http://www.example.com/videos/video1",
+					videos: [
+						{
+							thumbnailLoc: "http://www.example.com/thumbs/video1.jpg",
+							title: "Grilling steaks for summer",
+							description: "A comprehensive tutorial on grilling techniques",
+							contentLoc: "http://www.example.com/videos/video1.mp4",
+							playerLoc: "http://www.example.com/player?video=video1",
+							duration: 600,
+							expirationDate: "2025-12-31",
+							rating: 4.5,
+							viewCount: 15000,
+							publicationDate: "2024-06-15",
+							familyFriendly: true,
+							requiresSubscription: false,
+							live: false,
+							tags: ["grilling", "cooking", "summer", "barbecue"],
+							category: "Cooking",
+							restriction: { relationship: "allow", countries: ["US", "CA", "GB"] },
+							platform: { relationship: "allow", platforms: ["web", "mobile"] },
+							price: { currency: "USD", value: 1.99, type: "rent", resolution: "hd" },
+							uploader: { name: "GrillingChannel", info: "http://www.example.com/users/grillingchannel" },
+						},
+					],
+				},
+			]);
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("throws error when video has neither contentLoc nor playerLoc", () => {
+			expect(() =>
+				generateSitemap([
+					{
+						loc: "http://www.example.com/page",
+						videos: [
+							{
+								thumbnailLoc: "http://www.example.com/thumb.jpg",
+								title: "Test Video",
+								description: "Test Description",
+							},
+						],
+					},
+				]),
+			).toThrow("Video must have either contentLoc or playerLoc");
+		});
+
+		it("throws error when video duration is out of range", () => {
+			expect(() =>
+				generateSitemap([
+					{
+						loc: "http://www.example.com/page",
+						videos: [
+							{
+								thumbnailLoc: "http://www.example.com/thumb.jpg",
+								title: "Test Video",
+								description: "Test Description",
+								contentLoc: "http://www.example.com/video.mp4",
+								duration: 30000,
+							},
+						],
+					},
+				]),
+			).toThrow("Video duration must be between 1 and 28800 seconds");
+		});
+
+		it("throws error when video rating is out of range", () => {
+			expect(() =>
+				generateSitemap([
+					{
+						loc: "http://www.example.com/page",
+						videos: [
+							{
+								thumbnailLoc: "http://www.example.com/thumb.jpg",
+								title: "Test Video",
+								description: "Test Description",
+								contentLoc: "http://www.example.com/video.mp4",
+								rating: 6.0,
+							},
+						],
+					},
+				]),
+			).toThrow("Video rating must be between 0.0 and 5.0");
+		});
+
+		it("throws error when video has more than 32 tags", () => {
+			const tags = Array.from({ length: 33 }, (_, i) => `tag${i}`);
+			expect(() =>
+				generateSitemap([
+					{
+						loc: "http://www.example.com/page",
+						videos: [
+							{
+								thumbnailLoc: "http://www.example.com/thumb.jpg",
+								title: "Test Video",
+								description: "Test Description",
+								contentLoc: "http://www.example.com/video.mp4",
+								tags,
+							},
+						],
+					},
+				]),
+			).toThrow("Maximum 32 tags per video");
+		});
+
+		it("includes video namespace only when videos are present", () => {
+			const sitemapWithVideos = generateSitemap([
+				{
+					loc: "http://www.example.com/page",
+					videos: [
+						{
+							thumbnailLoc: "http://www.example.com/thumb.jpg",
+							title: "Test",
+							description: "Test",
+							contentLoc: "http://www.example.com/video.mp4",
+						},
+					],
+				},
+			]);
+			const sitemapWithoutVideos = generateSitemap([{ loc: "http://www.example.com/page" }]);
+
+			expect(sitemapWithVideos).toContain('xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"');
+			expect(sitemapWithoutVideos).not.toContain("xmlns:video");
+		});
+	});
+
+	describe("news sitemap", () => {
+		it("generates sitemap with news article", () => {
+			const sitemap = generateSitemap([
+				{
+					loc: "http://www.example.com/news/article1",
+					news: {
+						publication: {
+							name: "The Example Times",
+							language: "en",
+						},
+						publicationDate: "2024-01-15",
+						title: "Breaking News: Something Important Happened",
+					},
+				},
+			]);
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("generates sitemap with news article using datetime format", () => {
+			const sitemap = generateSitemap([
+				{
+					loc: "http://www.example.com/news/article2",
+					news: {
+						publication: {
+							name: "El Diario Ejemplo",
+							language: "es",
+						},
+						publicationDate: "2024-01-15T14:30:00+00:00",
+						title: "Noticias de última hora",
+					},
+				},
+			]);
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("includes news namespace only when news is present", () => {
+			const sitemapWithNews = generateSitemap([
+				{
+					loc: "http://www.example.com/page",
+					news: {
+						publication: { name: "Test News", language: "en" },
+						publicationDate: "2024-01-15",
+						title: "Test Article",
+					},
+				},
+			]);
+			const sitemapWithoutNews = generateSitemap([{ loc: "http://www.example.com/page" }]);
+
+			expect(sitemapWithNews).toContain('xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"');
+			expect(sitemapWithoutNews).not.toContain("xmlns:news");
+		});
+	});
+
+	describe("xhtml alternates", () => {
+		it("generates sitemap with alternate language versions", () => {
+			const sitemap = generateSitemap([
+				{
+					loc: "http://www.example.com/english/page",
+					alternates: [
+						{ href: "http://www.example.com/english/page", hreflang: "en" },
+						{ href: "http://www.example.com/deutsch/page", hreflang: "de" },
+						{ href: "http://www.example.com/espanol/page", hreflang: "es" },
+					],
+				},
+			]);
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("generates sitemap with x-default alternate", () => {
+			const sitemap = generateSitemap([
+				{
+					loc: "http://www.example.com/page",
+					alternates: [
+						{ href: "http://www.example.com/page", hreflang: "x-default" },
+						{ href: "http://www.example.com/en/page", hreflang: "en" },
+						{ href: "http://www.example.com/fr/page", hreflang: "fr" },
+					],
+				},
+			]);
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("generates sitemap with region-specific alternates", () => {
+			const sitemap = generateSitemap([
+				{
+					loc: "http://www.example.com/page",
+					alternates: [
+						{ href: "http://www.example.com/en-us/page", hreflang: "en-US" },
+						{ href: "http://www.example.com/en-gb/page", hreflang: "en-GB" },
+						{ href: "http://www.example.com/es-es/page", hreflang: "es-ES" },
+						{ href: "http://www.example.com/es-mx/page", hreflang: "es-MX" },
+					],
+				},
+			]);
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("includes xhtml namespace only when alternates are present", () => {
+			const sitemapWithAlternates = generateSitemap([
+				{
+					loc: "http://www.example.com/page",
+					alternates: [{ href: "http://www.example.com/de/page", hreflang: "de" }],
+				},
+			]);
+			const sitemapWithoutAlternates = generateSitemap([{ loc: "http://www.example.com/page" }]);
+
+			expect(sitemapWithAlternates).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
+			expect(sitemapWithoutAlternates).not.toContain("xmlns:xhtml");
+		});
+	});
+
+	describe("combined extensions", () => {
+		it("generates sitemap with multiple extension types", () => {
+			const urls: SitemapUrl[] = [
+				{
+					loc: "http://www.example.com/article",
+					lastmod: "2024-01-15",
+					changefreq: "daily",
+					priority: 0.9,
+					images: [
+						{ loc: "http://www.example.com/article-hero.jpg", title: "Article Hero Image" },
+						{ loc: "http://www.example.com/article-thumb.jpg" },
+					],
+					news: {
+						publication: { name: "The Example Times", language: "en" },
+						publicationDate: "2024-01-15",
+						title: "Breaking News Article",
+					},
+					alternates: [
+						{ href: "http://www.example.com/article", hreflang: "en" },
+						{ href: "http://www.example.com/de/article", hreflang: "de" },
+					],
+				},
+			];
+			const sitemap = generateSitemap(urls);
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("includes all required namespaces for multiple extensions", () => {
+			const sitemap = generateSitemap([
+				{
+					loc: "http://www.example.com/page",
+					images: [{ loc: "http://www.example.com/img.jpg" }],
+					videos: [
+						{
+							thumbnailLoc: "http://www.example.com/thumb.jpg",
+							title: "Test",
+							description: "Test",
+							contentLoc: "http://www.example.com/video.mp4",
+						},
+					],
+					news: {
+						publication: { name: "Test", language: "en" },
+						publicationDate: "2024-01-15",
+						title: "Test",
+					},
+					alternates: [{ href: "http://www.example.com/de/page", hreflang: "de" }],
+				},
+			]);
+
+			expect(sitemap).toContain('xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"');
+			expect(sitemap).toContain('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"');
+			expect(sitemap).toContain('xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"');
+			expect(sitemap).toContain('xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"');
+			expect(sitemap).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
 		});
 	});
 });

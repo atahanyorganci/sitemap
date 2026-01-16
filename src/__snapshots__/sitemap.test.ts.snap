@@ -214,3 +214,215 @@ exports[`generateSitemapIndex > boundary cases > generates sitemap index with si
   </sitemap>
 </sitemapindex>"
 `;
+
+exports[`sitemap extensions > combined extensions > generates sitemap with multiple extension types 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>http://www.example.com/article</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>http://www.example.com/article-hero.jpg</image:loc>
+      <image:title>Article Hero Image</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>http://www.example.com/article-thumb.jpg</image:loc>
+    </image:image>
+    <news:news>
+      <news:publication>
+        <news:name>The Example Times</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2024-01-15</news:publication_date>
+      <news:title>Breaking News Article</news:title>
+    </news:news>
+    <xhtml:link rel="alternate" hreflang="en" href="http://www.example.com/article" />
+    <xhtml:link rel="alternate" hreflang="de" href="http://www.example.com/de/article" />
+  </url>
+</urlset>"
+`;
+
+exports[`sitemap extensions > image sitemap > generates sitemap with image including all fields 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>http://www.example.com/page</loc>
+    <image:image>
+      <image:loc>http://www.example.com/photo.jpg</image:loc>
+      <image:caption>A beautiful sunset over the mountains</image:caption>
+      <image:geo_location>Limerick, Ireland</image:geo_location>
+      <image:title>Sunset Photo</image:title>
+      <image:license>http://www.example.com/license</image:license>
+    </image:image>
+  </url>
+</urlset>"
+`;
+
+exports[`sitemap extensions > image sitemap > generates sitemap with multiple images 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>http://www.example.com/gallery</loc>
+    <image:image>
+      <image:loc>http://www.example.com/image1.jpg</image:loc>
+      <image:title>Image 1</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>http://www.example.com/image2.jpg</image:loc>
+      <image:title>Image 2</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>http://www.example.com/image3.jpg</image:loc>
+      <image:title>Image 3</image:title>
+    </image:image>
+  </url>
+</urlset>"
+`;
+
+exports[`sitemap extensions > image sitemap > generates sitemap with single image 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>http://www.example.com/page</loc>
+    <image:image>
+      <image:loc>http://www.example.com/image.jpg</image:loc>
+    </image:image>
+  </url>
+</urlset>"
+`;
+
+exports[`sitemap extensions > news sitemap > generates sitemap with news article 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+  <url>
+    <loc>http://www.example.com/news/article1</loc>
+    <news:news>
+      <news:publication>
+        <news:name>The Example Times</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2024-01-15</news:publication_date>
+      <news:title>Breaking News: Something Important Happened</news:title>
+    </news:news>
+  </url>
+</urlset>"
+`;
+
+exports[`sitemap extensions > news sitemap > generates sitemap with news article using datetime format 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+  <url>
+    <loc>http://www.example.com/news/article2</loc>
+    <news:news>
+      <news:publication>
+        <news:name>El Diario Ejemplo</news:name>
+        <news:language>es</news:language>
+      </news:publication>
+      <news:publication_date>2024-01-15T14:30:00+00:00</news:publication_date>
+      <news:title>Noticias de última hora</news:title>
+    </news:news>
+  </url>
+</urlset>"
+`;
+
+exports[`sitemap extensions > video sitemap > generates sitemap with video including all optional fields 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+  <url>
+    <loc>http://www.example.com/videos/video1</loc>
+    <video:video>
+      <video:thumbnail_loc>http://www.example.com/thumbs/video1.jpg</video:thumbnail_loc>
+      <video:title>Grilling steaks for summer</video:title>
+      <video:description>A comprehensive tutorial on grilling techniques</video:description>
+      <video:content_loc>http://www.example.com/videos/video1.mp4</video:content_loc>
+      <video:player_loc>http://www.example.com/player?video=video1</video:player_loc>
+      <video:duration>600</video:duration>
+      <video:expiration_date>2025-12-31</video:expiration_date>
+      <video:rating>4.5</video:rating>
+      <video:view_count>15000</video:view_count>
+      <video:publication_date>2024-06-15</video:publication_date>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:requires_subscription>no</video:requires_subscription>
+      <video:live>no</video:live>
+      <video:tag>grilling</video:tag>
+      <video:tag>cooking</video:tag>
+      <video:tag>summer</video:tag>
+      <video:tag>barbecue</video:tag>
+      <video:category>Cooking</video:category>
+      <video:restriction relationship="allow">US CA GB</video:restriction>
+      <video:platform relationship="allow">web mobile</video:platform>
+      <video:price currency="USD" type="rent" resolution="hd">1.99</video:price>
+      <video:uploader info="http://www.example.com/users/grillingchannel">GrillingChannel</video:uploader>
+    </video:video>
+  </url>
+</urlset>"
+`;
+
+exports[`sitemap extensions > video sitemap > generates sitemap with video using contentLoc 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+  <url>
+    <loc>http://www.example.com/videos/video1</loc>
+    <video:video>
+      <video:thumbnail_loc>http://www.example.com/thumbs/video1.jpg</video:thumbnail_loc>
+      <video:title>Grilling steaks for summer</video:title>
+      <video:description>A tutorial on how to grill steaks perfectly</video:description>
+      <video:content_loc>http://www.example.com/videos/video1.mp4</video:content_loc>
+    </video:video>
+  </url>
+</urlset>"
+`;
+
+exports[`sitemap extensions > video sitemap > generates sitemap with video using playerLoc 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+  <url>
+    <loc>http://www.example.com/videos/video1</loc>
+    <video:video>
+      <video:thumbnail_loc>http://www.example.com/thumbs/video1.jpg</video:thumbnail_loc>
+      <video:title>Grilling steaks for summer</video:title>
+      <video:description>A tutorial on how to grill steaks perfectly</video:description>
+      <video:player_loc>http://www.example.com/player?video=video1</video:player_loc>
+    </video:video>
+  </url>
+</urlset>"
+`;
+
+exports[`sitemap extensions > xhtml alternates > generates sitemap with alternate language versions 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>http://www.example.com/english/page</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="http://www.example.com/english/page" />
+    <xhtml:link rel="alternate" hreflang="de" href="http://www.example.com/deutsch/page" />
+    <xhtml:link rel="alternate" hreflang="es" href="http://www.example.com/espanol/page" />
+  </url>
+</urlset>"
+`;
+
+exports[`sitemap extensions > xhtml alternates > generates sitemap with region-specific alternates 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>http://www.example.com/page</loc>
+    <xhtml:link rel="alternate" hreflang="en-US" href="http://www.example.com/en-us/page" />
+    <xhtml:link rel="alternate" hreflang="en-GB" href="http://www.example.com/en-gb/page" />
+    <xhtml:link rel="alternate" hreflang="es-ES" href="http://www.example.com/es-es/page" />
+    <xhtml:link rel="alternate" hreflang="es-MX" href="http://www.example.com/es-mx/page" />
+  </url>
+</urlset>"
+`;
+
+exports[`sitemap extensions > xhtml alternates > generates sitemap with x-default alternate 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>http://www.example.com/page</loc>
+    <xhtml:link rel="alternate" hreflang="x-default" href="http://www.example.com/page" />
+    <xhtml:link rel="alternate" hreflang="en" href="http://www.example.com/en/page" />
+    <xhtml:link rel="alternate" hreflang="fr" href="http://www.example.com/fr/page" />
+  </url>
+</urlset>"
+`;
