@@ -96,3 +96,121 @@ export function generateSitemap(urls: SitemapUrl[], { prettyPrint = true }: { pr
 	}
 	return xml.end({ prettyPrint });
 }
+
+/**
+ * Entry for a sitemap in a sitemap index file.
+ */
+export type SitemapEntry = {
+	/**
+	 * Identifies the location of the sitemap.
+	 * Must be in the same directory or subdirectory as the sitemap index.
+	 */
+	loc: string;
+	/**
+	 * Identifies the time that the corresponding sitemap file was modified.
+	 * Should be in W3C Datetime format (YYYY-MM-DD).
+	 */
+	lastmod?: string;
+};
+
+/**
+ * Generates a sitemap index XML file that references multiple sitemaps.
+ * Per the protocol, a sitemap index can contain up to 50,000 sitemaps.
+ */
+export function generateSitemapIndex(
+	sitemaps: SitemapEntry[],
+	{ prettyPrint = true }: { prettyPrint?: boolean } = {},
+): string {
+	if (sitemaps.length === 0) {
+		throw new Error("No sitemaps provided");
+	}
+	if (sitemaps.length > 50000) {
+		throw new Error("Sitemap index can contain up to 50,000 sitemaps");
+	}
+	const xml = create({ version: "1.0", encoding: "UTF-8" }).ele("sitemapindex", {
+		xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9",
+	});
+	for (const { loc, lastmod } of sitemaps) {
+		if (loc.length > 2048) {
+			throw new Error("Sitemap location length must be less than 2048 characters");
+		}
+		if (lastmod && !/^\d{4}-\d{2}-\d{2}$/.test(lastmod)) {
+			throw new Error("Last modified date must be in YYYY-MM-DD format");
+		}
+		xml.ele("sitemap", { loc, lastmod });
+	}
+	return xml.end({ prettyPrint });
+}
+
+export function generateSitemapName(
+	baseUrl: string,
+	{ index, prefix = "sitemap" }: { index: number; prefix?: string },
+): string {
+	return `${baseUrl}/${prefix}-${index}.xml`;
+}
+
+/**
+ * A collection of sitemap files and their index.
+ */
+export type SitemapCollection = {
+	/**
+	 * The sitemap index file.
+	 */
+	sitemapIndex: string;
+	/**
+	 * The sitemap files.
+	 */
+	sitemaps: string[];
+};
+
+export type SitemapCollectionOptions = {
+	/**
+	 * The maximum number of URLs per sitemap, defaults to 50,000.
+	 */
+	maxUrlsPerSitemap?: number;
+	/**
+	 * The prefix for the sitemap files, defaults to `"sitemap"`.
+	 */
+	prefix?: string | ((index: number) => string);
+	/**
+	 * Whether to pretty print the XML, defaults to true.
+	 */
+	prettyPrint?: boolean;
+};
+
+/**
+ * Generates a complete sitemap collection with index.
+ * Automatically splits URLs across multiple sitemaps if needed.
+ */
+export function generateSitemapCollection(
+	baseUrl: string,
+	urls: SitemapUrl[],
+	{ maxUrlsPerSitemap = 50000, prefix = "sitemap", prettyPrint = true }: SitemapCollectionOptions = {},
+): SitemapCollection {
+	if (urls.length === 0) {
+		throw new Error("No URLs provided");
+	}
+	if (maxUrlsPerSitemap < 1 || maxUrlsPerSitemap > 50000) {
+		throw new Error("Max URLs per sitemap must be between 1 and 50,000");
+	}
+	if (prefix.length > 2048) {
+		throw new Error("Prefix must be less than 2048 characters");
+	}
+	const sitemaps: string[] = [];
+	for (let i = 0; i < urls.length; i += maxUrlsPerSitemap) {
+		const sitemap = generateSitemap(urls.slice(i, i + maxUrlsPerSitemap), { prettyPrint });
+		sitemaps.push(sitemap);
+	}
+
+	const generateSitemapEntry =
+		typeof prefix === "string" ? (index: number) => generateSitemapName(baseUrl, { index, prefix }) : prefix;
+
+	const sitemapIndex = generateSitemapIndex(
+		sitemaps.map((_, index) => ({
+			loc: generateSitemapEntry(index),
+			lastmod: new Date().toISOString().split("T")[0],
+		})),
+		{ prettyPrint },
+	);
+	return { sitemapIndex, sitemaps };
+}

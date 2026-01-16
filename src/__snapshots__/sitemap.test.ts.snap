@@ -48,3 +48,69 @@ exports[`generateSitemap > Sitemaps Protocol examples > generates sitemap with p
 `;
 
 exports[`generateSitemap > Sitemaps Protocol examples > generates sitemap without pretty print 1`] = `"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url loc="http://www.example.com/" lastmod="2005-01-01" changefreq="monthly" priority="0.8"/></urlset>"`;
+
+exports[`generateSitemapCollection > basic functionality > generates collection with all URL fields 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap loc="http://www.example.com/sitemap-0.xml" lastmod="2026-01-16"/>
+</sitemapindex>"
+`;
+
+exports[`generateSitemapCollection > basic functionality > generates collection with all URL fields 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url loc="http://www.example.com/" lastmod="2005-01-01" changefreq="monthly" priority="0.8"/>
+  <url loc="http://www.example.com/about" lastmod="2005-06-15" changefreq="yearly" priority="0.5"/>
+</urlset>"
+`;
+
+exports[`generateSitemapCollection > basic functionality > generates collection with single sitemap when URLs fit 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap loc="http://www.example.com/sitemap-0.xml" lastmod="2026-01-16"/>
+</sitemapindex>"
+`;
+
+exports[`generateSitemapCollection > basic functionality > generates collection with single sitemap when URLs fit 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url loc="http://www.example.com/page1"/>
+  <url loc="http://www.example.com/page2"/>
+  <url loc="http://www.example.com/page3"/>
+</urlset>"
+`;
+
+exports[`generateSitemapIndex > Sitemaps Protocol examples > generates sitemap index with mixed optional fields 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap loc="http://www.example.com/sitemap-posts.xml" lastmod="2026-01-15"/>
+  <sitemap loc="http://www.example.com/sitemap-products.xml"/>
+  <sitemap loc="http://www.example.com/sitemap-pages.xml" lastmod="2026-01-10"/>
+</sitemapindex>"
+`;
+
+exports[`generateSitemapIndex > Sitemaps Protocol examples > generates sitemap index with multiple sitemaps 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap loc="http://www.example.com/sitemap1.xml.gz" lastmod="2004-10-01"/>
+  <sitemap loc="http://www.example.com/sitemap2.xml.gz" lastmod="2005-01-01"/>
+</sitemapindex>"
+`;
+
+exports[`generateSitemapIndex > Sitemaps Protocol examples > generates sitemap index with only required loc field 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap loc="http://www.example.com/sitemap1.xml"/>
+  <sitemap loc="http://www.example.com/sitemap2.xml"/>
+  <sitemap loc="http://www.example.com/sitemap3.xml"/>
+</sitemapindex>"
+`;
+
+exports[`generateSitemapIndex > Sitemaps Protocol examples > generates sitemap index without pretty print 1`] = `"<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap loc="http://www.example.com/sitemap1.xml.gz" lastmod="2004-10-01"/><sitemap loc="http://www.example.com/sitemap2.xml.gz" lastmod="2005-01-01"/></sitemapindex>"`;
+
+exports[`generateSitemapIndex > boundary cases > generates sitemap index with single sitemap 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap loc="http://www.example.com/sitemap.xml"/>
+</sitemapindex>"
+`;
