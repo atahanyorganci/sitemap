@@ -2,6 +2,46 @@ import { describe, expect, it } from "vitest";
 import { generateSitemap, generateSitemapIndex, generateSitemapCollection } from "./sitemap.js";
 
 describe("generateSitemap", () => {
+	describe("validation", () => {
+		it("throws error when no URLs provided", () => {
+			expect(() => generateSitemap([])).toThrow("No URLs provided");
+		});
+
+		it("throws error when URL exceeds 2048 characters", () => {
+			const longUrl = `http://www.example.com/${"a".repeat(2048)}`;
+			expect(() => generateSitemap([{ loc: longUrl }])).toThrow("URL length must be less than 2048 characters");
+		});
+
+		it("throws error for invalid lastmod date format", () => {
+			expect(() => generateSitemap([{ loc: "http://www.example.com/", lastmod: "2024/01/15" }])).toThrow(
+				"Last modified date must be in YYYY-MM-DD format",
+			);
+		});
+
+		it("throws error for lastmod with time component", () => {
+			expect(() => generateSitemap([{ loc: "http://www.example.com/", lastmod: "2024-01-15T10:30:00Z" }])).toThrow(
+				"Last modified date must be in YYYY-MM-DD format",
+			);
+		});
+
+		it("throws error when priority is below 0", () => {
+			expect(() => generateSitemap([{ loc: "http://www.example.com/", priority: -0.1 }])).toThrow(
+				"Priority must be between 0 and 1",
+			);
+		});
+
+		it("throws error when priority is above 1", () => {
+			expect(() => generateSitemap([{ loc: "http://www.example.com/", priority: 1.1 }])).toThrow(
+				"Priority must be between 0 and 1",
+			);
+		});
+
+		it("accepts priority of 0", () => {
+			const sitemap = generateSitemap([{ loc: "http://www.example.com/", priority: 0 }]);
+			expect(sitemap).toContain("<priority>0</priority>");
+		});
+	});
+
 	describe("Sitemaps Protocol examples", () => {
 		it("generates basic single URL with all fields", () => {
 			// Example from https://www.sitemaps.org/protocol.html

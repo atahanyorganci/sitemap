@@ -78,21 +78,26 @@ export function generateSitemap(urls: SitemapUrl[], { prettyPrint = true }: { pr
 		if (loc.length > 2048) {
 			throw new Error("URL length must be less than 2048 characters");
 		}
-		if (lastmod && !/^\d{4}-\d{2}-\d{2}$/.test(lastmod)) {
+		if (lastmod !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(lastmod)) {
 			throw new Error("Last modified date must be in YYYY-MM-DD format");
 		}
-		if (changefreq && !CHANGE_FREQUENCY.includes(changefreq)) {
+		if (changefreq !== undefined && !CHANGE_FREQUENCY.includes(changefreq)) {
 			throw new Error("Invalid change frequency");
 		}
-		if (priority && (priority < 0 || priority > 1)) {
+		if (priority !== undefined && (priority < 0 || priority > 1)) {
 			throw new Error("Priority must be between 0 and 1");
 		}
-		xml.ele("url", {
-			loc,
-			lastmod,
-			changefreq,
-			priority,
-		});
+		const urlElement = xml.ele("url");
+		urlElement.ele("loc").txt(loc);
+		if (lastmod !== undefined) {
+			urlElement.ele("lastmod").txt(lastmod);
+		}
+		if (changefreq !== undefined) {
+			urlElement.ele("changefreq").txt(changefreq);
+		}
+		if (priority !== undefined) {
+			urlElement.ele("priority").txt(priority.toString());
+		}
 	}
 	return xml.end({ prettyPrint });
 }
@@ -134,10 +139,14 @@ export function generateSitemapIndex(
 		if (loc.length > 2048) {
 			throw new Error("Sitemap location length must be less than 2048 characters");
 		}
-		if (lastmod && !/^\d{4}-\d{2}-\d{2}$/.test(lastmod)) {
+		if (lastmod !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(lastmod)) {
 			throw new Error("Last modified date must be in YYYY-MM-DD format");
 		}
-		xml.ele("sitemap", { loc, lastmod });
+		const sitemapElement = xml.ele("sitemap");
+		sitemapElement.ele("loc").txt(loc);
+		if (lastmod !== undefined) {
+			sitemapElement.ele("lastmod").txt(lastmod);
+		}
 	}
 	return xml.end({ prettyPrint });
 }
@@ -193,7 +202,7 @@ export function generateSitemapCollection(
 	if (maxUrlsPerSitemap < 1 || maxUrlsPerSitemap > 50000) {
 		throw new Error("Max URLs per sitemap must be between 1 and 50,000");
 	}
-	if (prefix.length > 2048) {
+	if (typeof prefix === "string" && prefix.length > 2048) {
 		throw new Error("Prefix must be less than 2048 characters");
 	}
 	const sitemaps: string[] = [];
