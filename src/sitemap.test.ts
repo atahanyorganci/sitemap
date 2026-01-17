@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { convert } from "xmlbuilder2";
 import {
 	generateSitemap,
 	generateSitemapIndex,
@@ -6,6 +7,14 @@ import {
 	generateSitemapStream,
 	type SitemapUrl,
 } from "./sitemap.js";
+
+/**
+ * Validates that the given string is well-formed XML by parsing it.
+ * Throws an error if the XML is invalid.
+ */
+function assertValidXml(xml: string): void {
+	convert(xml, { format: "object" });
+}
 
 describe("generateSitemap", () => {
 	describe("validation", () => {
@@ -44,6 +53,7 @@ describe("generateSitemap", () => {
 
 		it("accepts priority of 0", () => {
 			const sitemap = generateSitemap([{ loc: "http://www.example.com/", priority: 0 }]);
+			assertValidXml(sitemap);
 			expect(sitemap).toContain("<priority>0</priority>");
 		});
 	});
@@ -59,6 +69,7 @@ describe("generateSitemap", () => {
 					priority: 0.8,
 				},
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -90,6 +101,7 @@ describe("generateSitemap", () => {
 					lastmod: "2004-11-23",
 				},
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -99,6 +111,7 @@ describe("generateSitemap", () => {
 					loc: "http://www.example.com/page",
 				},
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -112,6 +125,7 @@ describe("generateSitemap", () => {
 				{ loc: "http://www.example.com/yearly", changefreq: "yearly" },
 				{ loc: "http://www.example.com/never", changefreq: "never" },
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -121,6 +135,7 @@ describe("generateSitemap", () => {
 				{ loc: "http://www.example.com/default", priority: 0.5 },
 				{ loc: "http://www.example.com/high", priority: 1.0 },
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -136,6 +151,7 @@ describe("generateSitemap", () => {
 				],
 				{ prettyPrint: false },
 			);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 	});
@@ -155,6 +171,7 @@ describe("generateSitemapIndex", () => {
 					lastmod: "2005-01-01",
 				},
 			]);
+			assertValidXml(index);
 			expect(index).toMatchSnapshot();
 		});
 
@@ -164,6 +181,7 @@ describe("generateSitemapIndex", () => {
 				{ loc: "http://www.example.com/sitemap2.xml" },
 				{ loc: "http://www.example.com/sitemap3.xml" },
 			]);
+			assertValidXml(index);
 			expect(index).toMatchSnapshot();
 		});
 
@@ -173,6 +191,7 @@ describe("generateSitemapIndex", () => {
 				{ loc: "http://www.example.com/sitemap-products.xml" },
 				{ loc: "http://www.example.com/sitemap-pages.xml", lastmod: "2026-01-10" },
 			]);
+			assertValidXml(index);
 			expect(index).toMatchSnapshot();
 		});
 
@@ -184,6 +203,7 @@ describe("generateSitemapIndex", () => {
 				],
 				{ prettyPrint: false },
 			);
+			assertValidXml(index);
 			expect(index).toMatchSnapshot();
 		});
 	});
@@ -223,6 +243,7 @@ describe("generateSitemapIndex", () => {
 	describe("boundary cases", () => {
 		it("generates sitemap index with single sitemap", () => {
 			const index = generateSitemapIndex([{ loc: "http://www.example.com/sitemap.xml" }]);
+			assertValidXml(index);
 			expect(index).toMatchSnapshot();
 		});
 
@@ -245,6 +266,10 @@ describe("generateSitemapCollection", () => {
 				{ loc: "http://www.example.com/page3" },
 			]);
 			expect(sitemaps).toHaveLength(1);
+			assertValidXml(sitemapIndex);
+			for (const sitemap of sitemaps) {
+				assertValidXml(sitemap);
+			}
 			expect(sitemapIndex).toMatchSnapshot();
 			expect(sitemaps[0]).toMatchSnapshot();
 		});
@@ -265,6 +290,10 @@ describe("generateSitemapCollection", () => {
 				},
 			]);
 			expect(sitemaps).toHaveLength(1);
+			assertValidXml(sitemapIndex);
+			for (const sitemap of sitemaps) {
+				assertValidXml(sitemap);
+			}
 			expect(sitemapIndex).toMatchSnapshot();
 			expect(sitemaps[0]).toMatchSnapshot();
 		});
@@ -275,22 +304,30 @@ describe("generateSitemapCollection", () => {
 			const urls = Array.from({ length: 10 }, (_, i) => ({
 				loc: `http://www.example.com/page${i}`,
 			}));
-			const { sitemaps } = generateSitemapCollection("http://www.example.com", urls, {
+			const { sitemapIndex, sitemaps } = generateSitemapCollection("http://www.example.com", urls, {
 				maxUrlsPerSitemap: 3,
 			});
 			// 10 URLs / 3 per sitemap = 4 sitemaps (3 + 3 + 3 + 1)
 			expect(sitemaps).toHaveLength(4);
+			assertValidXml(sitemapIndex);
+			for (const sitemap of sitemaps) {
+				assertValidXml(sitemap);
+			}
 		});
 
 		it("creates correct number of sitemaps for exact division", () => {
 			const urls = Array.from({ length: 9 }, (_, i) => ({
 				loc: `http://www.example.com/page${i}`,
 			}));
-			const { sitemaps } = generateSitemapCollection("http://www.example.com", urls, {
+			const { sitemapIndex, sitemaps } = generateSitemapCollection("http://www.example.com", urls, {
 				maxUrlsPerSitemap: 3,
 			});
 			// 9 URLs / 3 per sitemap = 3 sitemaps
 			expect(sitemaps).toHaveLength(3);
+			assertValidXml(sitemapIndex);
+			for (const sitemap of sitemaps) {
+				assertValidXml(sitemap);
+			}
 		});
 
 		it("generates sitemap index referencing all sitemaps", () => {
@@ -301,6 +338,10 @@ describe("generateSitemapCollection", () => {
 				maxUrlsPerSitemap: 2,
 			});
 			expect(sitemaps).toHaveLength(3);
+			assertValidXml(sitemapIndex);
+			for (const sitemap of sitemaps) {
+				assertValidXml(sitemap);
+			}
 			// Verify index contains references to all sitemaps
 			expect(sitemapIndex).toContain("sitemap-0.xml");
 			expect(sitemapIndex).toContain("sitemap-1.xml");
@@ -311,9 +352,13 @@ describe("generateSitemapCollection", () => {
 			const urls = Array.from({ length: 5 }, (_, i) => ({
 				loc: `http://www.example.com/page${i}`,
 			}));
-			const { sitemaps } = generateSitemapCollection("http://www.example.com", urls, {
+			const { sitemapIndex, sitemaps } = generateSitemapCollection("http://www.example.com", urls, {
 				maxUrlsPerSitemap: 2,
 			});
+			assertValidXml(sitemapIndex);
+			for (const sitemap of sitemaps) {
+				assertValidXml(sitemap);
+			}
 			// First sitemap: page0, page1
 			expect(sitemaps[0]).toContain("page0");
 			expect(sitemaps[0]).toContain("page1");
@@ -328,16 +373,20 @@ describe("generateSitemapCollection", () => {
 
 	describe("options", () => {
 		it("uses custom prefix string", () => {
-			const { sitemapIndex } = generateSitemapCollection(
+			const { sitemapIndex, sitemaps } = generateSitemapCollection(
 				"http://www.example.com",
 				[{ loc: "http://www.example.com/page1" }],
 				{ prefix: "my-sitemap" },
 			);
+			assertValidXml(sitemapIndex);
+			for (const sitemap of sitemaps) {
+				assertValidXml(sitemap);
+			}
 			expect(sitemapIndex).toContain("my-sitemap-0.xml");
 		});
 
 		it("uses custom prefix function", () => {
-			const { sitemapIndex } = generateSitemapCollection(
+			const { sitemapIndex, sitemaps } = generateSitemapCollection(
 				"http://www.example.com",
 				Array.from({ length: 3 }, (_, i) => ({ loc: `http://www.example.com/page${i}` })),
 				{
@@ -345,6 +394,10 @@ describe("generateSitemapCollection", () => {
 					prefix: index => `http://www.example.com/sitemaps/sitemap-part-${index + 1}.xml`,
 				},
 			);
+			assertValidXml(sitemapIndex);
+			for (const sitemap of sitemaps) {
+				assertValidXml(sitemap);
+			}
 			expect(sitemapIndex).toContain("sitemap-part-1.xml");
 			expect(sitemapIndex).toContain("sitemap-part-2.xml");
 			expect(sitemapIndex).toContain("sitemap-part-3.xml");
@@ -356,6 +409,10 @@ describe("generateSitemapCollection", () => {
 				[{ loc: "http://www.example.com/page1" }],
 				{ prettyPrint: false },
 			);
+			assertValidXml(sitemapIndex);
+			for (const sitemap of sitemaps) {
+				assertValidXml(sitemap);
+			}
 			// No newlines in output (except possibly at the end)
 			expect(sitemapIndex.trim().split("\n")).toHaveLength(1);
 			expect(sitemaps[0].trim().split("\n")).toHaveLength(1);
@@ -398,6 +455,10 @@ describe("generateSitemapCollection", () => {
 				{ loc: "http://www.example.com/" },
 			]);
 			expect(sitemaps).toHaveLength(1);
+			assertValidXml(sitemapIndex);
+			for (const sitemap of sitemaps) {
+				assertValidXml(sitemap);
+			}
 			expect(sitemapIndex).toContain("sitemap-0.xml");
 		});
 
@@ -405,10 +466,14 @@ describe("generateSitemapCollection", () => {
 			const urls = Array.from({ length: 3 }, (_, i) => ({
 				loc: `http://www.example.com/page${i}`,
 			}));
-			const { sitemaps } = generateSitemapCollection("http://www.example.com", urls, {
+			const { sitemapIndex, sitemaps } = generateSitemapCollection("http://www.example.com", urls, {
 				maxUrlsPerSitemap: 1,
 			});
 			expect(sitemaps).toHaveLength(3);
+			assertValidXml(sitemapIndex);
+			for (const sitemap of sitemaps) {
+				assertValidXml(sitemap);
+			}
 		});
 
 		it("handles maxUrlsPerSitemap at maximum (50,000)", () => {
@@ -431,6 +496,7 @@ describe("sitemap extensions", () => {
 					images: [{ loc: "http://www.example.com/image.jpg" }],
 				},
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -449,6 +515,7 @@ describe("sitemap extensions", () => {
 					],
 				},
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -463,6 +530,7 @@ describe("sitemap extensions", () => {
 					],
 				},
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -481,6 +549,8 @@ describe("sitemap extensions", () => {
 			]);
 			const sitemapWithoutImages = generateSitemap([{ loc: "http://www.example.com/page" }]);
 
+			assertValidXml(sitemapWithImages);
+			assertValidXml(sitemapWithoutImages);
 			expect(sitemapWithImages).toContain('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"');
 			expect(sitemapWithoutImages).not.toContain("xmlns:image");
 		});
@@ -501,6 +571,7 @@ describe("sitemap extensions", () => {
 					],
 				},
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -518,6 +589,7 @@ describe("sitemap extensions", () => {
 					],
 				},
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -550,6 +622,7 @@ describe("sitemap extensions", () => {
 					],
 				},
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -644,6 +717,8 @@ describe("sitemap extensions", () => {
 			]);
 			const sitemapWithoutVideos = generateSitemap([{ loc: "http://www.example.com/page" }]);
 
+			assertValidXml(sitemapWithVideos);
+			assertValidXml(sitemapWithoutVideos);
 			expect(sitemapWithVideos).toContain('xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"');
 			expect(sitemapWithoutVideos).not.toContain("xmlns:video");
 		});
@@ -664,6 +739,7 @@ describe("sitemap extensions", () => {
 					},
 				},
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -681,6 +757,7 @@ describe("sitemap extensions", () => {
 					},
 				},
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -697,6 +774,8 @@ describe("sitemap extensions", () => {
 			]);
 			const sitemapWithoutNews = generateSitemap([{ loc: "http://www.example.com/page" }]);
 
+			assertValidXml(sitemapWithNews);
+			assertValidXml(sitemapWithoutNews);
 			expect(sitemapWithNews).toContain('xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"');
 			expect(sitemapWithoutNews).not.toContain("xmlns:news");
 		});
@@ -714,6 +793,7 @@ describe("sitemap extensions", () => {
 					],
 				},
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -728,6 +808,7 @@ describe("sitemap extensions", () => {
 					],
 				},
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -743,6 +824,7 @@ describe("sitemap extensions", () => {
 					],
 				},
 			]);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -755,6 +837,8 @@ describe("sitemap extensions", () => {
 			]);
 			const sitemapWithoutAlternates = generateSitemap([{ loc: "http://www.example.com/page" }]);
 
+			assertValidXml(sitemapWithAlternates);
+			assertValidXml(sitemapWithoutAlternates);
 			expect(sitemapWithAlternates).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
 			expect(sitemapWithoutAlternates).not.toContain("xmlns:xhtml");
 		});
@@ -784,6 +868,7 @@ describe("sitemap extensions", () => {
 				},
 			];
 			const sitemap = generateSitemap(urls);
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -809,6 +894,7 @@ describe("sitemap extensions", () => {
 				},
 			]);
 
+			assertValidXml(sitemap);
 			expect(sitemap).toContain('xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"');
 			expect(sitemap).toContain('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"');
 			expect(sitemap).toContain('xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"');
@@ -838,6 +924,7 @@ describe("generateSitemapStream", () => {
 			const stream = generateSitemapStream([{ loc: "http://www.example.com/page" }]);
 			const sitemap = await collectStream(stream);
 
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -849,6 +936,7 @@ describe("generateSitemapStream", () => {
 			]);
 			const sitemap = await collectStream(stream);
 
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -863,6 +951,7 @@ describe("generateSitemapStream", () => {
 			]);
 			const sitemap = await collectStream(stream);
 
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -882,6 +971,7 @@ describe("generateSitemapStream", () => {
 			]);
 			const sitemap = await collectStream(stream);
 
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -901,6 +991,7 @@ describe("generateSitemapStream", () => {
 			]);
 			const sitemap = await collectStream(stream);
 
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -917,6 +1008,7 @@ describe("generateSitemapStream", () => {
 			]);
 			const sitemap = await collectStream(stream);
 
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 
@@ -932,6 +1024,7 @@ describe("generateSitemapStream", () => {
 			]);
 			const sitemap = await collectStream(stream);
 
+			assertValidXml(sitemap);
 			expect(sitemap).toMatchSnapshot();
 		});
 	});
