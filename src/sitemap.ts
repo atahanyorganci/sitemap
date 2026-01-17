@@ -447,6 +447,14 @@ function generateUrlElement(
 	urlElement.end();
 }
 
+/**
+ * Generates a sitemap XML file that contains the URLs. For large consider using {@link generateSitemapStream}.
+ * Eagerly creating a large string with {@link generateSitemap} is not recommended for large sites.
+ *
+ * @param urls - The URLs to generate a sitemap for.
+ * @param prettyPrint - Whether to pretty print the XML, defaults to true.
+ * @returns The sitemap XML as a string.
+ */
 export function generateSitemap(urls: SitemapUrl[], { prettyPrint = true }: { prettyPrint?: boolean } = {}): string {
 	if (urls.length === 0) {
 		throw new Error("No URLs provided");
@@ -458,6 +466,14 @@ export function generateSitemap(urls: SitemapUrl[], { prettyPrint = true }: { pr
 	return xml.end({ prettyPrint });
 }
 
+/**
+ * Generates a sitemap XML file that contains the URLs as a stream of Uint8Array. Useful for
+ * generating sitemap files for large sites. Eagerly creating a large string with {@link generateSitemap}
+ * is not recommended for large sites.
+ *
+ * @param urls - The URLs to generate a sitemap for.
+ * @returns The sitemap XML as a stream of Uint8Array.
+ */
 export function generateSitemapStream(urls: SitemapUrl[]): ReadableStream<Uint8Array> {
 	if (urls.length === 0) {
 		throw new Error("No URLs provided");
