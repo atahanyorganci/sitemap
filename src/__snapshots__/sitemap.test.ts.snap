@@ -110,7 +110,7 @@ exports[`generateSitemapCollection > basic functionality > generates collection 
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>http://www.example.com/sitemap-0.xml</loc>
-    <lastmod>2026-01-16</lastmod>
+    <lastmod>2026-01-17</lastmod>
   </sitemap>
 </sitemapindex>"
 `;
@@ -138,7 +138,7 @@ exports[`generateSitemapCollection > basic functionality > generates collection 
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>http://www.example.com/sitemap-0.xml</loc>
-    <lastmod>2026-01-16</lastmod>
+    <lastmod>2026-01-17</lastmod>
   </sitemap>
 </sitemapindex>"
 `;
@@ -213,6 +213,41 @@ exports[`generateSitemapIndex > boundary cases > generates sitemap index with si
     <loc>http://www.example.com/sitemap.xml</loc>
   </sitemap>
 </sitemapindex>"
+`;
+
+exports[`generateSitemapStream > URL extensions > generates stream with alternate links 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<url><loc>http://www.example.com/page</loc><xhtml:link rel="alternate" hreflang="en" href="http://www.example.com/en/page"/><xhtml:link rel="alternate" hreflang="de" href="http://www.example.com/de/page"/></url></urlset>"
+`;
+
+exports[`generateSitemapStream > URL extensions > generates stream with image extension 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<url><loc>http://www.example.com/page</loc><image:image><image:loc>http://www.example.com/image.jpg</image:loc><image:title>Test Image</image:title></image:image></url></urlset>"
+`;
+
+exports[`generateSitemapStream > URL extensions > generates stream with news extension 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+<url><loc>http://www.example.com/news/article</loc><news:news><news:publication><news:name>Test News</news:name><news:language>en</news:language></news:publication><news:publication_date>2024-01-15</news:publication_date><news:title>Breaking News</news:title></news:news></url></urlset>"
+`;
+
+exports[`generateSitemapStream > URL extensions > generates stream with video extension 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+<url><loc>http://www.example.com/page</loc><video:video><video:thumbnail_loc>http://www.example.com/thumb.jpg</video:thumbnail_loc><video:title>Test Video</video:title><video:description>A test video</video:description><video:content_loc>http://www.example.com/video.mp4</video:content_loc></video:video></url></urlset>"
+`;
+
+exports[`generateSitemapStream > basic functionality > generates stream with all URL fields 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>http://www.example.com/</loc><lastmod>2024-01-15</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url></urlset>"
+`;
+
+exports[`generateSitemapStream > basic functionality > generates stream with multiple URLs 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>http://www.example.com/page1</loc></url><url><loc>http://www.example.com/page2</loc></url><url><loc>http://www.example.com/page3</loc></url></urlset>"
+`;
+
+exports[`generateSitemapStream > basic functionality > generates stream with single URL 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>http://www.example.com/page</loc></url></urlset>"
 `;
 
 exports[`sitemap extensions > combined extensions > generates sitemap with multiple extension types 1`] = `

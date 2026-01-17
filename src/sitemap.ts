@@ -1,4 +1,4 @@
-import { create } from "xmlbuilder2";
+import { create, fragment } from "xmlbuilder2";
 
 const CHANGE_FREQUENCY = ["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"] as const;
 
@@ -456,6 +456,28 @@ export function generateSitemap(urls: SitemapUrl[], { prettyPrint = true }: { pr
 		generateUrlElement(xml, url);
 	}
 	return xml.end({ prettyPrint });
+}
+
+export function generateSitemapStream(urls: SitemapUrl[]): ReadableStream<Uint8Array> {
+	if (urls.length === 0) {
+		throw new Error("No URLs provided");
+	}
+	const encoder = new TextEncoder();
+	return new ReadableStream({
+		start(controller) {
+			const root = create({ version: "1.0", encoding: "UTF-8" }).ele("urlset", getNamespaces(urls)).end();
+			const openingTag = root.substring(0, root.length - 2) + ">\n";
+			controller.enqueue(encoder.encode(openingTag));
+
+			for (const url of urls) {
+				const elem = fragment();
+				generateUrlElement(elem, url);
+				controller.enqueue(encoder.encode(elem.end()));
+			}
+			controller.enqueue(encoder.encode("</urlset>"));
+			controller.close();
+		},
+	});
 }
 
 /**

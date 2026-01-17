@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { generateSitemap, generateSitemapIndex, generateSitemapCollection, type SitemapUrl } from "./sitemap.js";
+import {
+	generateSitemap,
+	generateSitemapIndex,
+	generateSitemapCollection,
+	generateSitemapStream,
+	type SitemapUrl,
+} from "./sitemap.js";
 
 describe("generateSitemap", () => {
 	describe("validation", () => {
@@ -808,6 +814,167 @@ describe("sitemap extensions", () => {
 			expect(sitemap).toContain('xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"');
 			expect(sitemap).toContain('xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"');
 			expect(sitemap).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
+		});
+	});
+});
+
+async function collectStream(stream: ReadableStream<Uint8Array>): Promise<string> {
+	const decoder = new TextDecoder();
+	const reader = stream.getReader();
+	const chunks: string[] = [];
+	while (true) {
+		const { done, value } = await reader.read();
+		if (done) {
+			break;
+		}
+		chunks.push(decoder.decode(value));
+	}
+	return chunks.join("");
+}
+
+describe("generateSitemapStream", () => {
+	describe("basic functionality", () => {
+		it("generates stream with single URL", async () => {
+			const stream = generateSitemapStream([{ loc: "http://www.example.com/page" }]);
+			const sitemap = await collectStream(stream);
+
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("generates stream with multiple URLs", async () => {
+			const stream = generateSitemapStream([
+				{ loc: "http://www.example.com/page1" },
+				{ loc: "http://www.example.com/page2" },
+				{ loc: "http://www.example.com/page3" },
+			]);
+			const sitemap = await collectStream(stream);
+
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("generates stream with all URL fields", async () => {
+			const stream = generateSitemapStream([
+				{
+					loc: "http://www.example.com/",
+					lastmod: "2024-01-15",
+					changefreq: "weekly",
+					priority: 0.8,
+				},
+			]);
+			const sitemap = await collectStream(stream);
+
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("returns a ReadableStream", () => {
+			const stream = generateSitemapStream([{ loc: "http://www.example.com/" }]);
+			expect(stream).toBeInstanceOf(ReadableStream);
+		});
+	});
+
+	describe("URL extensions", () => {
+		it("generates stream with image extension", async () => {
+			const stream = generateSitemapStream([
+				{
+					loc: "http://www.example.com/page",
+					images: [{ loc: "http://www.example.com/image.jpg", title: "Test Image" }],
+				},
+			]);
+			const sitemap = await collectStream(stream);
+
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("generates stream with video extension", async () => {
+			const stream = generateSitemapStream([
+				{
+					loc: "http://www.example.com/page",
+					videos: [
+						{
+							thumbnailLoc: "http://www.example.com/thumb.jpg",
+							title: "Test Video",
+							description: "A test video",
+							contentLoc: "http://www.example.com/video.mp4",
+						},
+					],
+				},
+			]);
+			const sitemap = await collectStream(stream);
+
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("generates stream with news extension", async () => {
+			const stream = generateSitemapStream([
+				{
+					loc: "http://www.example.com/news/article",
+					news: {
+						publication: { name: "Test News", language: "en" },
+						publicationDate: "2024-01-15",
+						title: "Breaking News",
+					},
+				},
+			]);
+			const sitemap = await collectStream(stream);
+
+			expect(sitemap).toMatchSnapshot();
+		});
+
+		it("generates stream with alternate links", async () => {
+			const stream = generateSitemapStream([
+				{
+					loc: "http://www.example.com/page",
+					alternates: [
+						{ href: "http://www.example.com/en/page", hreflang: "en" },
+						{ href: "http://www.example.com/de/page", hreflang: "de" },
+					],
+				},
+			]);
+			const sitemap = await collectStream(stream);
+
+			expect(sitemap).toMatchSnapshot();
+		});
+	});
+
+	describe("validation", () => {
+		it("throws error when URL exceeds 2048 characters", async () => {
+			const longUrl = `http://www.example.com/${"a".repeat(2048)}`;
+			expect(() => generateSitemapStream([{ loc: longUrl }])).toThrow("URL length must be less than 2048 characters");
+		});
+
+		it("throws error for invalid lastmod date format", async () => {
+			expect(() => generateSitemapStream([{ loc: "http://www.example.com/", lastmod: "2024/01/15" }])).toThrow(
+				"Last modified date must be in YYYY-MM-DD format",
+			);
+		});
+
+		it("throws error when priority is out of range", async () => {
+			expect(() => generateSitemapStream([{ loc: "http://www.example.com/", priority: 1.5 }])).toThrow(
+				"Priority must be between 0 and 1",
+			);
+		});
+
+		it("throws error when video has neither contentLoc nor playerLoc", async () => {
+			expect(() =>
+				generateSitemapStream([
+					{
+						loc: "http://www.example.com/page",
+						videos: [
+							{
+								thumbnailLoc: "http://www.example.com/thumb.jpg",
+								title: "Test",
+								description: "Test",
+							},
+						],
+					},
+				]),
+			).toThrow("Video must have either contentLoc or playerLoc");
+		});
+	});
+
+	describe("empty URLs", () => {
+		it("returns empty stream when no URLs provided", async () => {
+			expect(() => generateSitemapStream([])).toThrow();
 		});
 	});
 });
